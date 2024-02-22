@@ -30,6 +30,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   List<SmsMessage> messages = [];
   ByteData? font;
+  String? filePath;
   @override
   void initState() {
     super.initState();
@@ -75,27 +76,33 @@ class _MyHomePageState extends State<MyHomePage> {
     final Directory? downloadsDir = await getDownloadsDirectory();
     // Save the PDF to a file
     final output = File('${downloadsDir?.path}/sms_messages.csv');
-    output.writeAsString(smsLt.toString()).then((value) => 
-    
-    VxToast.show(context, msg: 'PDF saved to: ${output.path}')
-    );
+
+    output.writeAsString(smsLt.toString()).then(
+        (value) => VxToast.show(context, msg: 'saved to: ${output.path}'));
+    setState(() {
+      filePath = output.path;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('SMS Reader'),
+        title: const Text('SMS Extractor'),
       ),
-      body: ListView.builder(
-        itemCount: messages.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: Text(messages[index].body!),
-            subtitle: Text('From: ${messages[index].address}'),
-          );
-        },
-      ),
+      body: [
+        "Path of saved file: ".text.make(),
+        ListView.builder(
+          itemCount: messages.length,
+          shrinkWrap: true,
+          itemBuilder: (context, index) {
+            return ListTile(
+              title: Text(messages[index].body!),
+              subtitle: Text('From: ${messages[index].address}'),
+            );
+          },
+        )
+      ].vStack(),
     );
   }
 }
